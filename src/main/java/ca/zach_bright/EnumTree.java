@@ -13,9 +13,9 @@ class EnumTree<E extends Enum<E>> {
     private Class<E> eClass;
 
     public EnumTree(Class<E> eClass) {
+        this.eClass = eClass;
         this.root = new EnumTreeNode(null, null, null);
         this.currentNode = root;
-        this.eClass = eClass;
     }
 
     /**
@@ -124,14 +124,9 @@ class EnumTree<E extends Enum<E>> {
             E key = entry.getKey();
             EnumTreeNode child = entry.getValue();
 
-            // Get list of strings and compile into a single string.
-            List<String> list = new ArrayList<String>();
-            child.getContentList(list);
+            // Get string for all the children.
             StringBuilder sb = new StringBuilder();
-            for (String s : list) {
-                sb.append(s);
-                sb.append(" ");
-            }
+            child.getContentList(sb);
 
             // Have to delete last space we added.
             sb.deleteCharAt(sb.length() - 1);
@@ -166,16 +161,17 @@ class EnumTree<E extends Enum<E>> {
         /**
          * BFS down and get a list of contents.
          * 
-         * @param contentList a list of contents already constructed.
+         * @param sb    a builder to add content to.
          */
-        public void getContentList(List<String> contentList) {
+        public void getContentList(StringBuilder sb) {
             // Add our own content.
             if (this.content != null) {
-                contentList.add(this.content);
+                sb.append(this.content);
+                sb.append(" ");
             }
             // Recurse through children.
             for (EnumTreeNode child : this.children.values()) {
-                child.getContentList(contentList);
+                child.getContentList(sb);
             }
         }
 

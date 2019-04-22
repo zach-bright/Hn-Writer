@@ -13,17 +13,23 @@ public class HnWriterTest {
     @Test
     public void canBuildH4() {
         HnWriter<TestEnum> writer;
-        Map<String, TestEnum> contentEnumMap = buildContentEnumMap();
-        File sourceFile = new File(
-            HnWriterTest.class.getResource("/h4.json").getFile()
-        );
-        EnumTreeBuilder<TestEnum> builder = 
-            new FlatJSONTreeBuilder<TestEnum>(
-                sourceFile, 
-                contentEnumMap,
-                TestEnum.class
+        try {
+            Map<String, TestEnum> contentEnumMap = buildContentEnumMap();
+            File sourceFile = new File(
+                HnWriterTest.class.getResource("/h4.json").getFile()
             );
-        writer = new HnWriter<TestEnum>(builder);
+            EnumTreeBuilder<TestEnum> builder = 
+                new FlatJSONTreeBuilder<TestEnum>(
+                    sourceFile, 
+                    contentEnumMap,
+                    TestEnum.class
+                );
+            writer = new HnWriter<TestEnum>(builder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertTrue(false);
+            return;
+        }
         writer.getContentList().values().forEach(System.out::println);
         assertTrue(true);
     }

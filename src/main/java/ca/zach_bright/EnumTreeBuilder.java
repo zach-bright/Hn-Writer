@@ -25,6 +25,7 @@ public abstract class EnumTreeBuilder<E extends Enum<E>> {
         }
         this.sourceFile = sourceFile;
         this.contentEnumMap = contentEnumMap;
+        this.eClass = eClass;
     }
 
     public abstract EnumTree<E> build() throws IOException;
