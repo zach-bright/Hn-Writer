@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Presents a simpler way to use an HnTree.
- * 
- * The HnTree's output is automatically buffered to a string until enter ('\n')
- * is typed, after which it moves to a history buffer. Both these buffers plus 
- * the char buffer are accessable to users for display purposes.
+ * Wraps an EnumTree with a friendlier interface.
  *
  * @author zach-bright
  */
-public class HnWriter<E extends Enum<E>> extends HnTree<E> {
+public class HnWriter<E extends Enum<E>> {
+    private EnumTree<E> tree;
+    
+    // Char-level variables.
+    private boolean isCaps = false;
+    private boolean isShift = false;
+
+    // String-level variables.
     private LinkedList<String> history;
     private StringBuilder currentSB;
     private String currentString = "";
@@ -24,48 +27,88 @@ public class HnWriter<E extends Enum<E>> extends HnTree<E> {
      * @param builder   tree builder to use in constructing the EnumTree.
      */
     public HnWriter(EnumTreeBuilder<E> builder) throws IOException {
-        super(builder);
+        this.tree = builder.build();
         this.history = new LinkedList<String>();
         this.currentSB = new StringBuilder();
     }
 
     /**
-     * Handles the output of HnTree's walk function.
+     * Walks down the tree, returning new node content.
      *
      * @param direction direction to walk through the tree.
-     * @return result from HnTree's walk function.
+     * @return character value for current node. Only non-null on leaves.
      */
     public char walk(E direction) {
-        char result = super.walk(direction);
+        String content = tree.walkDown(direction);
 
-        // Check special characters.
-        switch (result) {
-            case '\b':
+        // Early-exit for nullchar.
+        if (content == "") {
+            return '\0';
+        }
+
+        // Auto-rewind if we hit a leaf.
+        if (tree.currentIsLeaf()) {
+            // TODO: add error state for bad tree if non-leaf content
+            // TODO: add error state for incomplete tree if no-content leaf
+            tree.rewind();
+        }
+
+        // Get character representation.
+        char charValue;
+        if (!content.matches("(<.*>)")) {
+            // Check normal character.
+            if (this.isCaps || this.isShift) {
+                content = content.toUpperCase();
+            }
+
+            // Toggle off shift is we applied it.
+            // Note that shift doesn't untoggle on special characters.
+            if (this.isShift) {
+                isShift = false;
+            }
+
+            charValue = content.charAt(0);
+            this.currentSB.append(charValue);
+            this.currentString = this.currentSB.toString();
+        } else {
+            // Check special characters.
+            charValue = this.handleSpecialCharacter(content);
+        }
+
+        return charValue;
+    }
+
+    /**
+     * Turns special char strings to actual chars and handles "action" chars.
+     *
+     * @param content   special content to handle.
+     * @return character representation of content.
+     */
+    private char handleSpecialCharacter(String content) {
+        switch (content) {
+            case "<bksp>":
                 // Trim last char from sb if possible.
                 if (this.currentSB.length() > 1) {
                     this.currentSB.setLength(this.currentSB.length() - 1);
                 }
-                return result;
-            case '\n':
+                return '\b';
+            case "<enter>":
                 // Add current str to history and start another.
                 this.history.add(currentString);
                 this.currentSB.setLength(0);
                 this.currentString = "";
-                return result;
-            case '\0':
-            case (char) 16:
-            case (char) 20:
-            case (char) 114:
-                // Caps, shift, and sym are handled by HnTree internally.
-                // These and nullchar can just be ignored.
-                return result;
+                return '\n';
+            case "<caps>":
+                this.isCaps = !this.isCaps;
+                return (char) 20;
+            case "<shift>":
+                this.isShift = !this.isShift;
+                return (char) 16;
+            case "<sym>":
+                return (char) 114;
+            default:
+                return '\0';
         }
-
-        // Update SB and string (only when needed vs building in getter).
-        this.currentSB.append(result);
-        this.currentString = this.currentSB.toString();
-
-        return result;
     }
 
     public String getHistory(int index) {
@@ -79,5 +122,25 @@ public class HnWriter<E extends Enum<E>> extends HnTree<E> {
 
     public String getString() {
         return this.currentString;
+    }
+
+    public void setCaps(boolean caps) {
+        this.isCaps = caps;
+    }
+
+    public boolean nextIsCapitalized() {
+        return this.isCaps || this.isShift;
+    }
+
+    public boolean isCaps() {
+        return this.isCaps;
+    }
+
+    public boolean isShift() {
+        return this.isShift;
+    }
+
+    public EnumMap<E, String> getContentList() {
+        return this.tree.getContentList();
     }
 }
