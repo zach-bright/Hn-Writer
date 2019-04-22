@@ -78,34 +78,38 @@ public class HnTree<E extends Enum<E>> {
             charValue = content.charAt(0);
         } else {
             // Check special characters.
-            switch (content) {
-                case "<bksp>":
-                    charValue = '\b';
-                    break;
-                case "<space>":
-                    charValue = ' ';
-                    break;
-                case "<enter>":
-                    charValue = '\n';
-                    break;
-                case "<caps>":
-                    charValue = (char) 20;
-                    this.isCaps = !this.isCaps;
-                    break;
-                case "<shift>":
-                    charValue = (char) 16;
-                    this.isShift = !this.isShift;
-                    break;
-                case "<sym>":
-                    charValue = (char) 114;
-                    break;
-                default:
-                    charValue = '\0';
-            }
+            charValue = this.handleSpecialCharacter(content);
         }
 
         this.addToBuffer(content);
         return charValue;
+    }
+
+    /**
+     * Turns special char strings to actual chars and handles "action" chars.
+     *
+     * @param content   special content to handle.
+     * @return character representation of content.
+     */
+    private char handleSpecialCharacter(String content) {
+        switch (content) {
+            case "<bksp>":
+                return '\b';
+            case "<space>":
+                return ' ';
+            case "<enter>":
+                return '\n';
+            case "<caps>":
+                this.isCaps = !this.isCaps;
+                return (char) 20;
+            case "<shift>":
+                this.isShift = !this.isShift;
+                return (char) 16;
+            case "<sym>":
+                return (char) 114;
+            default:
+                return '\0';
+        }
     }
 
     /**
@@ -149,9 +153,5 @@ public class HnTree<E extends Enum<E>> {
 
     public EnumMap<E, String> getContentList() {
         return this.tree.getContentList();
-    }
-
-    public EnumTree<E> getEnumTree() {
-        return this.tree;
     }
 }
