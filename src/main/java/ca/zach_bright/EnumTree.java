@@ -4,14 +4,16 @@ import java.util.*;
 
 /**
  * A walkable tree where each node contains an EnumMap'ed list of children.
+ *
+ * @author zach-bright
  */
 class EnumTree<E extends Enum<E>> {
     private EnumTreeNode root;
     private EnumTreeNode currentNode;
     private Class<E> eClass;
 
-    public EnumTree(EnumTreeNode root, Class<E> eClass) {
-        this.root = root;
+    public EnumTree(Class<E> eClass) {
+        this.root = new EnumTreeNode(null, null, null);
         this.currentNode = root;
         this.eClass = eClass;
     }
@@ -49,6 +51,24 @@ class EnumTree<E extends Enum<E>> {
      */
     public void rewind() {
         this.currentNode = this.root;
+    }
+
+    /**
+     * Check if current node is leaf node.
+     *
+     * @return true if node is leaf.
+     */
+    public boolean currentIsLeaf() {
+        return this.currentNode.isLeaf();
+    }
+
+    /**
+     * Get the enum (E) for this tree.
+     *
+     * @return the enum this tree uses.
+     */
+    public Class<E> getEnumClass() {
+        return eClass;
     }
 
     /**
@@ -124,17 +144,10 @@ class EnumTree<E extends Enum<E>> {
     }
 
     /**
-     * Get the enum (E) for this tree.
-     *
-     * @return the enum this tree uses.
-     */
-    public Class<E> getEnumClass() {
-        return eClass;
-    }
-
-    /**
      * Represents a node in the tree, where each node contains possibly E-ary
      * child nodes, and leaves contain content.
+     *
+     * @author zach-bright
      */
     private class EnumTreeNode {
         protected EnumTreeNode parent;
