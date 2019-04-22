@@ -27,14 +27,14 @@ public class HnWriterTest {
             writer = new HnWriter<TestEnum>(builder);
 
             // Try a sequence: "hi\n"
-            assertEquals('\0', writer.walk(TestEnum.UP));
-            assertEquals('h' , writer.walk(TestEnum.LEFT));
-            assertEquals('\0', writer.walk(TestEnum.UP));
-            assertEquals('i' , writer.walk(TestEnum.DOWN));
-            assertEquals('\0', writer.walk(TestEnum.LEFT));
-            assertEquals('\n', writer.walk(TestEnum.UP));
+            writer.walk(TestEnum.UP);
+            writer.walk(TestEnum.LEFT); // h
+            writer.walk(TestEnum.UP);
+            writer.walk(TestEnum.DOWN); // i
+            writer.walk(TestEnum.LEFT);
+            writer.walk(TestEnum.UP);   // \n
             
-            // Make sure Hn knew we hit enter and the string is in history.
+            // Make sure Writer knew we hit enter and the string is in history.
             assertEquals("", writer.getString());
             assertEquals("hi", writer.getHistory(0));
         } catch (Exception e) {
