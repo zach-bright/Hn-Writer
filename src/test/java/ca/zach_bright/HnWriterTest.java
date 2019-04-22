@@ -1,6 +1,8 @@
 package ca.zach_bright;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import java.util.*;
+import java.io.*;
 
 import org.junit.Test;
 
@@ -10,12 +12,24 @@ public class HnWriterTest {
      */
     @Test
     public void canBuildH4() {
-        Map<> contentEnumMap = buildContentEnumMap();
-        File sourceFile = this.getClass.getResource("/h4.json");
+        HnWriter<TestEnum> writer;
+        Map<String, TestEnum> contentEnumMap = buildContentEnumMap();
+        File sourceFile = new File(
+            HnWriterTest.class.getResource("/h4.json").getFile()
+        );
+        EnumTreeBuilder<TestEnum> builder = 
+            new FlatJSONTreeBuilder<TestEnum>(
+                sourceFile, 
+                contentEnumMap,
+                TestEnum.class
+            );
+        writer = new HnWriter<TestEnum>(builder);
+        writer.getContentList().values().forEach(System.out::println);
+        assertTrue(true);
     }
 
     private Map<String, TestEnum> buildContentEnumMap() {
-        Map<> m = new EnumMap<String, TestEnum>();
+        Map<String, TestEnum> m = new HashMap<String, TestEnum>();
         m.put("U", TestEnum.UP);
         m.put("D", TestEnum.DOWN);
         m.put("L", TestEnum.LEFT);
