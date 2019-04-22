@@ -89,15 +89,18 @@ public class HnTree<E extends Enum<E>> {
                     charValue = '\n';
                     break;
                 case "<caps>":
-                    charValue = 
+                    charValue = (char) 20;
                     this.isCaps = !this.isCaps;
                     break;
                 case "<shift>":
-                    charValue = 
+                    charValue = (char) 16;
                     this.isShift = !this.isShift;
                     break;
                 case "<sym>":
-                    charValue = 
+                    charValue = (char) 114;
+                    break;
+                default:
+                    charValue = '\0';
             }
         }
 
