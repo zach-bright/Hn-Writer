@@ -44,7 +44,6 @@ public class FlatJSONTreeBuilder<E extends Enum<E>> extends EnumTreeBuilder<E> {
             // Turn all the string:string pairs into string:List<E> pairs and
             // add node to the tree.
             for (Map.Entry<String, String> entry : contentDirMap.entrySet()) {
-                System.out.println(entry.getKey() + ":" + entry.getValue());
                 String content = entry.getKey();
                 List<E> dirList = Arrays.stream(entry.getValue().split(""))
                     .map(k -> this.contentEnumMap.get(k))

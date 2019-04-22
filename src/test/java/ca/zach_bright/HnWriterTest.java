@@ -8,10 +8,10 @@ import org.junit.Test;
 
 public class HnWriterTest {
     /**
-     * Test that HnWriter can make an H4 tree.
+     * Test that HnWriter can make a valid H4 tree.
      */
     @Test
-    public void canBuildH4() {
+    public void testH4() {
         HnWriter<TestEnum> writer;
         try {
             Map<String, TestEnum> contentEnumMap = buildContentEnumMap();
@@ -25,13 +25,23 @@ public class HnWriterTest {
                     TestEnum.class
                 );
             writer = new HnWriter<TestEnum>(builder);
+
+            // Try a sequence: "hi\n"
+            assertEquals('\0', writer.walk(TestEnum.UP));
+            assertEquals('h' , writer.walk(TestEnum.LEFT));
+            assertEquals('\0', writer.walk(TestEnum.UP));
+            assertEquals('i' , writer.walk(TestEnum.DOWN));
+            assertEquals('\0', writer.walk(TestEnum.LEFT));
+            assertEquals('\n', writer.walk(TestEnum.UP));
+            
+            // Make sure Hn knew we hit enter and the string is in history.
+            assertEquals("", writer.getString());
+            assertEquals("hi", writer.getHistory(0));
         } catch (Exception e) {
             e.printStackTrace();
-            assertTrue(false);
+            fail();
             return;
         }
-        writer.getContentList().values().forEach(System.out::println);
-        assertTrue(true);
     }
 
     private Map<String, TestEnum> buildContentEnumMap() {

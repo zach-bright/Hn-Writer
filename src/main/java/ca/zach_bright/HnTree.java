@@ -44,7 +44,12 @@ public class HnTree<E extends Enum<E>> {
      */
     public char walk(E direction) {
         String content = tree.walkDown(direction);
-        if (tree.currentIsLeaf() && content != null) {
+
+        if (content == "") {
+            return '\0';
+        }
+
+        if (tree.currentIsLeaf()) {
             // TODO: add error state for bad tree if non-leaf content
             // TODO: add error state for incomplete tree if no-content leaf
             // Auto-rewind if we hit a leaf.

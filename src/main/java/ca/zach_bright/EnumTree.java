@@ -88,13 +88,13 @@ class EnumTree<E extends Enum<E>> {
             
             // Create blank nodes if necessary.
             if (nextNode == null) {
-                nextNode = new EnumTreeNode(null, label, tempNode);
-                currentNode.addChild(nextNode, label);
+                nextNode = new EnumTreeNode("", label, tempNode);
+                tempNode.addChild(nextNode, label);
             }
             
             tempNode = nextNode;
         }
-      
+
         // Create new node and add it.
         E lastLabel = labelPath.get(labelPath.size() - 1);
         EnumTreeNode newNode = 
@@ -111,12 +111,13 @@ class EnumTree<E extends Enum<E>> {
      * @return map of labels to a (space-separated) list of contents.
      */
     public EnumMap<E, String> getContentList() {
+        EnumMap<E, String> contentMap = new EnumMap<E, String>(eClass);
+
         // Early exit if the child has no children.
         if (this.currentNode.isLeaf()) {
-            return null;
+            return contentMap;
         }
 
-        EnumMap<E, String> contentMap = new EnumMap<E, String>(eClass);
         EnumMap<E, EnumTreeNode> children = this.currentNode.getChildren();
         
         // Iterate over children map and write to content map.
@@ -165,7 +166,7 @@ class EnumTree<E extends Enum<E>> {
          */
         public void getContentList(StringBuilder sb) {
             // Add our own content.
-            if (this.content != null) {
+            if (this.content != "") {
                 sb.append(this.content);
                 sb.append(" ");
             }

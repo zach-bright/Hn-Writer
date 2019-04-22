@@ -70,7 +70,7 @@ public class HnWriter<E extends Enum<E>> extends HnTree<E> {
 
     public String getHistory(int index) {
         // Access backwards because its a linked list.
-        return this.history.get(this.historySize - index);
+        return this.history.get(this.history.size() - index - 1);
     }
 
     public String[] getHistoryList() {
