@@ -2,7 +2,7 @@ package ca.zach_bright;
 
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.JSONObject;
+
 import java.util.stream.Collectors;
 import java.util.*;
 import java.io.*;
@@ -12,8 +12,9 @@ import java.io.*;
  * content to a list of directions.
  * 
  * @author zach-bright
+ * @param <E> enum that the EnumTree will use.
  */
-public class FlatJSONTreeBuilder<E extends Enum<E>> extends EnumTreeBuilder<E> {
+public class FlatJSONTreeBuilder<E extends Enum<E>> extends FileEnumTreeBuilder<E> {
     public FlatJSONTreeBuilder(
         File sourceFile, 
         Map<String, E> contentEnumMap, 

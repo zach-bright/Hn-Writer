@@ -18,13 +18,13 @@ public class HnWriterTest {
             File sourceFile = new File(
                 HnWriterTest.class.getResource("/h4.json").getFile()
             );
-            EnumTreeBuilder<TestEnum> builder = 
+            EnumTreeBuilder<TestEnum> builder =
                 new FlatJSONTreeBuilder<TestEnum>(
                     sourceFile, 
                     contentEnumMap,
                     TestEnum.class
                 );
-            writer = new HnWriter<TestEnum>(builder);
+            writer = new HnWriter<>(builder);
 
             // Try a sequence: "hi\n"
             writer.walk(TestEnum.UP);

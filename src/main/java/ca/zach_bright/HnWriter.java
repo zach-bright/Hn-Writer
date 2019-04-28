@@ -28,7 +28,7 @@ public class HnWriter<E extends Enum<E>> {
      */
     public HnWriter(EnumTreeBuilder<E> builder) throws IOException {
         this.tree = builder.build();
-        this.history = new LinkedList<String>();
+        this.history = new LinkedList<>();
         this.currentSB = new StringBuilder();
     }
 

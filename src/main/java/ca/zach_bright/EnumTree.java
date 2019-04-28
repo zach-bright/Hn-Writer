@@ -1,5 +1,6 @@
 package ca.zach_bright;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -78,7 +79,7 @@ class EnumTree<E extends Enum<E>> {
      * @param content   what to write in new node.
      * @param labelPath path to the new node.
      */
-    public void addNodeToPath(String content, List<E> labelPath) {
+    public void addNodeToPath(String content, List<E> labelPath) throws IOException {
         EnumTreeNode tempNode = root;
         
         // Traverse down (making new nodes as necessary) to 2nd-last label.
@@ -111,7 +112,7 @@ class EnumTree<E extends Enum<E>> {
      * @return map of labels to a (space-separated) list of contents.
      */
     public EnumMap<E, String> getContentList() {
-        EnumMap<E, String> contentMap = new EnumMap<E, String>(eClass);
+        EnumMap<E, String> contentMap = new EnumMap<>(eClass);
 
         // Early exit if the child has no children.
         if (this.currentNode.isLeaf()) {
@@ -140,6 +141,18 @@ class EnumTree<E extends Enum<E>> {
     }
 
     /**
+     * Add new child to current node.
+     *
+     * @param content content for new node.
+     * @param label enum label for new node.
+     * @throws IOException if current node already has child with label.
+     */
+    public void addChildToCurrent(String content, E label) throws IOException {
+        EnumTreeNode newNode = new EnumTreeNode(content, label, this.currentNode);
+        this.currentNode.addChild(newNode, label);
+    }
+
+    /**
      * Represents a node in the tree, where each node contains possibly E-ary
      * child nodes, and leaves contain content.
      *
@@ -156,7 +169,7 @@ class EnumTree<E extends Enum<E>> {
             this.label = label;
             this.parent = parent;
             this.children = 
-                new EnumMap<E, EnumTreeNode>(EnumTree.this.getEnumClass());
+                new EnumMap<>(EnumTree.this.getEnumClass());
         }
 
         /**
@@ -166,7 +179,7 @@ class EnumTree<E extends Enum<E>> {
          */
         public void getContentList(StringBuilder sb) {
             // Add our own content.
-            if (this.content != "") {
+            if (!this.content.equals("")) {
                 sb.append(this.content);
                 sb.append(" ");
             }
@@ -176,7 +189,18 @@ class EnumTree<E extends Enum<E>> {
             }
         }
 
-        public void addChild(EnumTreeNode child, E label) {
+        /**
+         * Add node to children map.
+         *
+         * @param child child node to add.
+         * @param label label for new child.
+         * @throws IOException if node already has child with label.
+         */
+        public void addChild(EnumTreeNode child, E label) throws IOException {
+            if (this.getChild(label) == null) {
+                throw new IOException("Node with content " + child.getContent() + ""
+                    + " already present with label.");
+            }
             this.children.put(label, child);
         }
 
