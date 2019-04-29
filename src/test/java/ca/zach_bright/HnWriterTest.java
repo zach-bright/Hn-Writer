@@ -40,7 +40,6 @@ public class HnWriterTest {
         } catch (Exception e) {
             e.printStackTrace();
             fail();
-            return;
         }
     }
 

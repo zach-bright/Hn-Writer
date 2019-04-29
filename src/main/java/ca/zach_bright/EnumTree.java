@@ -8,14 +8,14 @@ import java.util.*;
  *
  * @author zach-bright
  */
-class EnumTree<E extends Enum<E>> {
-    private EnumTreeNode root;
-    private EnumTreeNode currentNode;
+public class EnumTree<E extends Enum<E>> {
+    private EnumTreeNode<E> root;
+    private EnumTreeNode<E> currentNode;
     private Class<E> eClass;
 
     public EnumTree(Class<E> eClass) {
         this.eClass = eClass;
-        this.root = new EnumTreeNode(null, null, null);
+        this.root = new EnumTreeNode<>(null, null, eClass);
         this.currentNode = root;
     }
 
@@ -28,7 +28,7 @@ class EnumTree<E extends Enum<E>> {
     public String walkDown(E label) {
         if (!this.currentNode.isLeaf()) {
             // Try to walk to new node.
-            EnumTreeNode newCurrent = this.currentNode.getChild(label);
+            EnumTreeNode<E> newCurrent = this.currentNode.getChild(label);
             if (newCurrent != null) {
                 // Only update if we actually had a valid node.
                 this.currentNode = newCurrent;
@@ -43,7 +43,7 @@ class EnumTree<E extends Enum<E>> {
      */
     public void walkUp() {
         // Avoid null currentNode for root.
-        EnumTreeNode parent = this.currentNode.getParent();
+        EnumTreeNode<E> parent = this.currentNode.getParent();
         this.currentNode = parent == null ? root: parent;
     }
 
@@ -64,32 +64,23 @@ class EnumTree<E extends Enum<E>> {
     }
 
     /**
-     * Get the enum (E) for this tree.
-     *
-     * @return the enum this tree uses.
-     */
-    public Class<E> getEnumClass() {
-        return eClass;
-    }
-
-    /**
      * Follows a path down from root, creating nodes as necessary, and places  
      * a new node containing the provided content at the last place.
      * 
-     * @param content   what to write in new node.
+     * @param content what to write in new node.
      * @param labelPath path to the new node.
      */
     public void addNodeToPath(String content, List<E> labelPath) throws IOException {
-        EnumTreeNode tempNode = root;
+        EnumTreeNode<E> tempNode = root;
         
         // Traverse down (making new nodes as necessary) to 2nd-last label.
         for (int i = 0; i < labelPath.size() - 1; i++) {
             E label = labelPath.get(i);
-            EnumTreeNode nextNode = tempNode.getChild(label);
+            EnumTreeNode<E> nextNode = tempNode.getChild(label);
             
             // Create blank nodes if necessary.
             if (nextNode == null) {
-                nextNode = new EnumTreeNode("", label, tempNode);
+                nextNode = new EnumTreeNode<>("", tempNode, this.eClass);
                 tempNode.addChild(nextNode, label);
             }
             
@@ -98,16 +89,16 @@ class EnumTree<E extends Enum<E>> {
 
         // Create new node and add it.
         E lastLabel = labelPath.get(labelPath.size() - 1);
-        EnumTreeNode newNode = 
-            new EnumTreeNode(content, lastLabel, tempNode);
+        EnumTreeNode<E> newNode =
+            new EnumTreeNode<>(content, tempNode, this.eClass);
         tempNode.addChild(newNode, lastLabel);
     }
 
     /**
-     * Get a list of content from every descendent of the current node.
+     * Get a list of content from every descendant of the current node.
      *
      * For each direct child of current node, a content list of every 
-     * descendent of that child is constructed.
+     * descendant of that child is constructed.
      *
      * @return map of labels to a (space-separated) list of contents.
      */
@@ -119,12 +110,12 @@ class EnumTree<E extends Enum<E>> {
             return contentMap;
         }
 
-        EnumMap<E, EnumTreeNode> children = this.currentNode.getChildren();
+        EnumMap<E, EnumTreeNode<E>> children = this.currentNode.getChildren();
         
         // Iterate over children map and write to content map.
-        for (Map.Entry<E, EnumTreeNode> entry : children.entrySet()) {
+        for (Map.Entry<E, EnumTreeNode<E>> entry : children.entrySet()) {
             E key = entry.getKey();
-            EnumTreeNode child = entry.getValue();
+            EnumTreeNode<E> child = entry.getValue();
 
             // Get string for all the children.
             StringBuilder sb = new StringBuilder();
@@ -148,80 +139,7 @@ class EnumTree<E extends Enum<E>> {
      * @throws IOException if current node already has child with label.
      */
     public void addChildToCurrent(String content, E label) throws IOException {
-        EnumTreeNode newNode = new EnumTreeNode(content, label, this.currentNode);
+        EnumTreeNode<E> newNode = new EnumTreeNode<>(content, this.currentNode, this.eClass);
         this.currentNode.addChild(newNode, label);
-    }
-
-    /**
-     * Represents a node in the tree, where each node contains possibly E-ary
-     * child nodes, and leaves contain content.
-     *
-     * @author zach-bright
-     */
-    private class EnumTreeNode {
-        protected EnumTreeNode parent;
-        protected EnumMap<E, EnumTreeNode> children;
-        protected String content;
-        protected E label;
-
-        public EnumTreeNode(String content, E label, EnumTreeNode parent) {
-            this.content = content == null ? "" : content;
-            this.label = label;
-            this.parent = parent;
-            this.children = 
-                new EnumMap<>(EnumTree.this.getEnumClass());
-        }
-
-        /**
-         * BFS down and get a list of contents.
-         * 
-         * @param sb    a builder to add content to.
-         */
-        public void getContentList(StringBuilder sb) {
-            // Add our own content.
-            if (!this.content.equals("")) {
-                sb.append(this.content);
-                sb.append(" ");
-            }
-            // Recurse through children.
-            for (EnumTreeNode child : this.children.values()) {
-                child.getContentList(sb);
-            }
-        }
-
-        /**
-         * Add node to children map.
-         *
-         * @param child child node to add.
-         * @param label label for new child.
-         * @throws IOException if node already has child with label.
-         */
-        public void addChild(EnumTreeNode child, E label) throws IOException {
-            if (this.getChild(label) == null) {
-                throw new IOException("Node with content " + child.getContent() + ""
-                    + " already present with label.");
-            }
-            this.children.put(label, child);
-        }
-
-        public EnumTreeNode getParent() {
-            return this.parent;
-        }
-
-        public EnumTreeNode getChild(E label) {
-            return this.children.get(label);
-        }
-
-        public EnumMap<E, EnumTreeNode> getChildren() {
-            return this.children;
-        }
-
-        public String getContent() {
-            return this.content;
-        }
-
-        public boolean isLeaf() {
-            return this.children.isEmpty();
-        }
     }
 }

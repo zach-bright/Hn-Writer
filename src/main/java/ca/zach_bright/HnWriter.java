@@ -42,7 +42,7 @@ public class HnWriter<E extends Enum<E>> {
         String content = tree.walkDown(direction);
 
         // Early-exit for nullchar.
-        if (content == "") {
+        if (content.equals("")) {
             return '\0';
         }
 

@@ -1,6 +1,7 @@
 package ca.zach_bright;
 
 import java.io.IOException;
+import java.util.*;
 
 /**
  * Builds an EnumTree by generating an n-ary Huffman code.
@@ -36,12 +37,20 @@ public class GenerativeEnumTreeBuilder<E extends Enum<E>> implements EnumTreeBui
         }
 
         EnumTree<E> tree = new EnumTree<>(this.eClass);
-        E[] enumList = eClass.getEnumConstants();
 
-        for (String key : KEYS) {
-            // Select k nodes.
-            // First, find a = n mod (m-1)
-            // Then, find k = a (mod m-1)
+        // Get list of enums and freq-ordered keys.
+        E[] enumList = eClass.getEnumConstants();
+        int n = enumList.length;
+        Deque<String> keyQueue = new ArrayDeque<>(Arrays.asList(KEYS));
+
+        int its = 0;
+        while (!keyQueue.isEmpty() && its < 512) {
+            its++;
+
+            int nodeNum = n;
+            for (int i = 0; i < n; i++) {
+                tree.addChildToCurrent(keyQueue.pop(), enumList[i]);
+            }
         }
 
         this.tree = tree;

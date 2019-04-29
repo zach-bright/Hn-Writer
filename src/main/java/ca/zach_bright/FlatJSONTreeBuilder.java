@@ -34,7 +34,7 @@ public class FlatJSONTreeBuilder<E extends Enum<E>> extends FileEnumTreeBuilder<
             return this.tree;
         }
 
-        EnumTree<E> tree = new EnumTree<E>(this.eClass);
+        EnumTree<E> tree = new EnumTree<>(this.eClass);
         JSONParser parser = new JSONParser();
 
         // Parse JSON file and add each node to tree.
