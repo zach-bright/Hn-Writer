@@ -19,7 +19,7 @@ public class HnWriterTest {
                 HnWriterTest.class.getResource("/h4.json").getFile()
             );
             EnumTreeBuilder<TestEnum> builder =
-                new FlatJSONTreeBuilder<TestEnum>(
+                new FlatJSONTreeBuilder<>(
                     sourceFile, 
                     contentEnumMap,
                     TestEnum.class

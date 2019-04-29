@@ -14,9 +14,26 @@ public class EnumTree<E extends Enum<E>> {
     private EnumTreeNode<E> currentNode;
     private Class<E> eClass;
 
+    /**
+     * Create EnumTree with empty root.
+     *
+     * @param eClass concrete class for E. Used in each node's EnumMap.
+     */
     public EnumTree(Class<E> eClass) {
         this.eClass = eClass;
         this.root = new EnumTreeNode<>(null, null, eClass);
+        this.currentNode = root;
+    }
+
+    /**
+     * Create EnumTree with already-existing root.
+     *
+     * @param eClass concrete class for E. Used in each node's EnumMap.
+     * @param root root of already-existing tree.
+     */
+    public EnumTree(Class<E> eClass, EnumTreeNode<E> root) {
+        this.eClass = eClass;
+        this.root = root;
         this.currentNode = root;
     }
 

@@ -15,8 +15,8 @@ public class GenerativeEnumTreeBuilder<E extends Enum<E>> implements EnumTreeBui
         "m", "w", "y", "p", "g", "b", "v", "k", "x", "j", "q", "z", "?", ";", "'", "-", "%",
         "$", "<sym>", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-    protected EnumTree<E> tree = null;
-    protected Class<E> eClass;
+    private EnumTree<E> tree = null;
+    private Class<E> eClass;
 
     /**
      * @param eClass class of the enum.
@@ -36,24 +36,53 @@ public class GenerativeEnumTreeBuilder<E extends Enum<E>> implements EnumTreeBui
             return this.tree;
         }
 
-        EnumTree<E> tree = new EnumTree<>(this.eClass);
-
-        // Get list of enums and freq-ordered keys.
+        // Get list of enums and their length (m), as well as alphabet size (n).
         E[] enumList = eClass.getEnumConstants();
-        int n = enumList.length;
-        Deque<String> keyQueue = new ArrayDeque<>(Arrays.asList(KEYS));
+        int m = enumList.length;
+        int n = KEYS.length;
 
-        int its = 0;
-        while (!keyQueue.isEmpty() && its < 512) {
-            its++;
-
-            int nodeNum = n;
-            for (int i = 0; i < n; i++) {
-                tree.addChildToCurrent(keyQueue.pop(), enumList[i]);
-            }
+        // Convert key list into forest of one-node trees ordered by root weight.
+        Queue<EnumTreeNode<E>> keyForest = new PriorityQueue<>(
+                Comparator.comparingInt(EnumTreeNode<E>::getWeight)
+        );
+        int weight = m;
+        for (String key : Arrays.asList(KEYS)) {
+            keyForest.add(new EnumTreeNode<>(key, null, this.eClass, weight--));
         }
 
-        this.tree = tree;
+        // Pick an initial merge count (a). This number is chosen such that
+        // each subsequent iteration is guaranteed to take m nodes.
+        int a = 2 + (n - 2) % (m - 1);
+
+        // Merge trees until only one is left.
+        while (keyForest.size() >= 1) {
+            // Create blank 'merger' node.
+            EnumTreeNode<E> mergerNode = new EnumTreeNode<>(
+                    "",
+                    null,
+                    this.eClass
+            );
+
+            // Remove a-number of trees and add them to merger node.
+            // Also get the sum of their weights (this is mergerNode's weight).
+            int mergerWeight = 0;
+            for (int i = 0; i < a || keyForest.isEmpty(); i++) {
+                EnumTreeNode<E> tempNode = keyForest.remove();
+                mergerWeight += tempNode.getWeight();
+                mergerNode.addChild(tempNode, enumList[i]);
+            }
+
+            // Assign weight to new node.
+            mergerNode.setWeight(mergerWeight);
+
+            // Add node back to forest.
+            keyForest.add(mergerNode);
+
+            a = m;
+        }
+
+        // The last tree contains the complete Huffman coding.
+        this.tree = new EnumTree<>(this.eClass, keyForest.remove());
         return tree;
     }
 }

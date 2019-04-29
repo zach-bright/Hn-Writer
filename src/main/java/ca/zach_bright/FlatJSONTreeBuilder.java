@@ -15,6 +15,12 @@ import java.io.*;
  * @param <E> enum that the EnumTree will use.
  */
 public class FlatJSONTreeBuilder<E extends Enum<E>> extends FileEnumTreeBuilder<E> {
+    /**
+     * @param sourceFile file to use in generating the tree.
+     * @param contentEnumMap map from file strings to enum.
+     * @param eClass class of the enum.
+     * @throws IOException if file is empty.
+     */
     public FlatJSONTreeBuilder(
         File sourceFile, 
         Map<String, E> contentEnumMap, 

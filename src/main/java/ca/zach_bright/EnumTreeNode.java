@@ -14,11 +14,37 @@ class EnumTreeNode<E extends Enum<E>> {
     private EnumTreeNode<E> parent;
     private EnumMap<E, EnumTreeNode<E>> children;
     private String content;
+    private int weight;
 
+    /**
+     * Create unweighted node.
+     *
+     * @param content node content.
+     * @param parent parent node.
+     * @param eClass concrete class for EnumMap.
+     */
     EnumTreeNode(String content, EnumTreeNode<E> parent, Class<E> eClass) {
         this.content = content == null ? "" : content;
         this.parent = parent;
         this.children = new EnumMap<>(eClass);
+    }
+
+    /**
+     * Create weighted node.
+     *
+     * @param content node content.
+     * @param parent parent node.
+     * @param eClass concrete class for EnumMap.
+     * @param weight node connection weight.
+     */
+    EnumTreeNode(
+            String content,
+            EnumTreeNode<E> parent,
+            Class<E> eClass,
+            int weight
+    ) {
+        this(content, parent, eClass);
+        this.weight = weight;
     }
 
     /**
@@ -71,5 +97,13 @@ class EnumTreeNode<E extends Enum<E>> {
 
     boolean isLeaf() {
         return this.children.isEmpty();
+    }
+
+    int getWeight() {
+        return this.weight;
+    }
+
+    void setWeight(int weight) {
+        this.weight = weight;
     }
 }
