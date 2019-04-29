@@ -1,5 +1,6 @@
 package ca.zach_bright;
 
+import java.util.function.Consumer;
 import java.io.IOException;
 import java.util.*;
 
@@ -10,6 +11,7 @@ import java.util.*;
  */
 public class HnWriter<E extends Enum<E>> {
     private EnumTree<E> tree;
+    private Consumer<String> callback;
     
     // Char-level variables.
     private boolean isCaps = false;
@@ -22,14 +24,29 @@ public class HnWriter<E extends Enum<E>> {
     private int historySize = 32;
 
     /**
-     * Construct HnWriter with a tree constructed from the given builder.
+     * Construct HnWriter with a tree from the given builder.
      *
      * @param builder   tree builder to use in constructing the EnumTree.
      */
     public HnWriter(EnumTreeBuilder<E> builder) throws IOException {
         this.tree = builder.build();
-        this.history = new LinkedList<String>();
+        this.history = new LinkedList<>();
         this.currentSB = new StringBuilder();
+    }
+
+    /**
+     * Construct HnWriter with a tree from the given builder, and a callback
+     * function that is passed the entered string once user presses enter key.
+     *
+     * @param builder tree builder to use in constructing the EnumTree.
+     * @param callback callback that is passed the constructed string.
+     */
+    public HnWriter(
+            EnumTreeBuilder<E> builder,
+            Consumer<String> callback
+    ) throws IOException {
+        this(builder);
+        this.callback = callback;
     }
 
     /**
@@ -93,6 +110,9 @@ public class HnWriter<E extends Enum<E>> {
                 }
                 return '\b';
             case "<enter>":
+                // Run callback if present.
+                this.callback.accept(this.currentString);
+
                 // Add current str to history and start another.
                 this.history.add(currentString);
                 this.currentSB.setLength(0);
