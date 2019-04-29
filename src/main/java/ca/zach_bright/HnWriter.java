@@ -114,7 +114,7 @@ public class HnWriter<E extends Enum<E>> {
 
     public void addHistory(String str) {
         // Trim if history is too long.
-        if (this.history.size() > 32) {
+        if (this.history.size() > this.historySize) {
             this.history.pop();
         }
         this.history.add(str);
