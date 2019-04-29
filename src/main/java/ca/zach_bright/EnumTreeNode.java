@@ -8,6 +8,7 @@ import java.util.EnumMap;
  * child nodes, and leaves contain content.
  *
  * @author zach-bright
+ * @param <E> enum used for node labeling.
  */
 class EnumTreeNode<E extends Enum<E>> {
     private EnumTreeNode<E> parent;

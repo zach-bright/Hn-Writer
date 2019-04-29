@@ -7,6 +7,7 @@ import java.util.*;
  * Wraps an EnumTree with a friendlier interface.
  *
  * @author zach-bright
+ * @param <E> enum that the EnumTree will use.
  */
 public class HnWriter<E extends Enum<E>> {
     private EnumTree<E> tree;
@@ -24,7 +25,7 @@ public class HnWriter<E extends Enum<E>> {
     /**
      * Construct HnWriter with a tree constructed from the given builder.
      *
-     * @param builder   tree builder to use in constructing the EnumTree.
+     * @param builder tree builder to use in constructing the EnumTree.
      */
     public HnWriter(EnumTreeBuilder<E> builder) throws IOException {
         this.tree = builder.build();
@@ -81,7 +82,7 @@ public class HnWriter<E extends Enum<E>> {
     /**
      * Turns special char strings to actual chars and handles "action" chars.
      *
-     * @param content   special content to handle.
+     * @param content special content to handle.
      * @return character representation of content.
      */
     private char handleSpecialCharacter(String content) {
@@ -94,7 +95,7 @@ public class HnWriter<E extends Enum<E>> {
                 return '\b';
             case "<enter>":
                 // Add current str to history and start another.
-                this.history.add(currentString);
+                this.addHistory(this.currentString);
                 this.currentSB.setLength(0);
                 this.currentString = "";
                 return '\n';
@@ -109,6 +110,14 @@ public class HnWriter<E extends Enum<E>> {
             default:
                 return '\0';
         }
+    }
+
+    public void addHistory(String str) {
+        // Trim if history is too long.
+        if (this.history.size() > 32) {
+            this.history.pop();
+        }
+        this.history.add(str);
     }
 
     public String getHistory(int index) {

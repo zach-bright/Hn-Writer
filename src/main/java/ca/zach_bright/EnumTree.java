@@ -7,6 +7,7 @@ import java.util.*;
  * A walkable tree where each node contains an EnumMap'ed list of children.
  *
  * @author zach-bright
+ * @param <E> enum used for node labeling.
  */
 public class EnumTree<E extends Enum<E>> {
     private EnumTreeNode<E> root;
